@@ -87,6 +87,7 @@ class FTDataHandler {
             this.dag = new d3.dagNode(undefined, {});
             this.dag.children = this.root;
         }
+        this.root.click();
     };
 
     update_roots() {
@@ -385,6 +386,7 @@ class Person extends FTNode {
         this.inserted_nodes = [];
         this.inserted_links = [];
         this.visible = false;
+        this.lastClick = 0;
     };
 
     get_name() {
@@ -521,12 +523,15 @@ class Person extends FTNode {
     };
 
     click() {
-        // extend if there are uncollapsed neighbor unions
-        if (this.is_extendable()) this.show();
-        // collapse if fully extended
-        else this.hide();
-        // update dag roots
-        this.ft_datahandler.update_roots();
+        if (Date.now() - this.lastClick > 125) {
+            this.lastClick = Date.now();
+            // extend if there are uncollapsed neighbor unions
+            if (this.is_extendable()) this.show();
+            // collapse if fully extended
+            else this.hide();
+            // update dag roots
+            this.ft_datahandler.update_roots();
+        }
     };
 
     add_own_union(union_data) {
@@ -615,7 +620,7 @@ class FTDrawer {
 
         // defaults
         this.orientation("horizontal");
-        this.transition_duration(750);
+        this.transition_duration(75);
         this.link_path(FTDrawer.default_link_path_func);
         this.node_label(FTDrawer.default_node_label_func);
         this.node_size(FTDrawer.default_node_size_func);
@@ -824,7 +829,7 @@ class FTDrawer {
             nodeEnter
                 .on("mouseover", function (event, d) {
                     tooltip_div.transition()
-                        .duration(200)
+                        .duration(20)
                         .style("opacity", undefined);
                     tooltip_div.html(tooltip_func(d));
                     let height = tooltip_div.node().getBoundingClientRect().height;
@@ -833,7 +838,7 @@ class FTDrawer {
                 })
                 .on("mouseout", function (d) {
                     tooltip_div.transition()
-                        .duration(500)
+                        .duration(50)
                         .style("opacity", 0);
                 });
         };
